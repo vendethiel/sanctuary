@@ -11,14 +11,14 @@
     "test": "make lint test"
   },
   "dependencies": {
-    "ramda": "0.22.x",
-    "sanctuary-def": "0.6.x"
+    "sanctuary-def": "0.7.x",
+    "sanctuary-type-classes": "1.1.x"
   },
   "devDependencies": {
     "browserify": "13.1.x",
     "doctest": "0.10.x",
     "eslint": "2.9.x",
-    "fantasy-land": "0.3.x",
+    "fantasy-land": "2.1.0",
     "istanbul": "0.4.x",
     "jsverify": "0.7.x",
     "karma": "1.3.x",

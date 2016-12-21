@@ -1,8 +1,7 @@
 'use strict';
 
 var FL = require('fantasy-land');
-
-var R = require('ramda');
+var Z = require('sanctuary-type-classes');
 
 
 //  Identity :: a -> Identity a
@@ -13,14 +12,14 @@ function Identity(value) {
 
 Identity[FL.of] = Identity;
 
-Identity.prototype['@@type'] = 'sanctuary/Identity';
+Identity.prototype['@@type'] = 'sanctuary-type-classes/Identity';
 
 Identity.prototype[FL.equals] = function(other) {
-  return R.equals(this.value, other.value);
+  return Z.equals(other.value, this.value);
 };
 
 Identity.prototype[FL.concat] = function(other) {
-  return Identity(R.concat(this.value, other.value));
+  return Identity(Z.concat(this.value, other.value));
 };
 
 Identity.prototype[FL.map] = function(f) {
@@ -28,7 +27,7 @@ Identity.prototype[FL.map] = function(f) {
 };
 
 Identity.prototype[FL.ap] = function(other) {
-  return R.map(other.value, this);
+  return Z.map(other.value, this);
 };
 
 Identity.prototype[FL.chain] = function(f) {
@@ -40,7 +39,7 @@ Identity.prototype[FL.reduce] = function(f, x) {
 };
 
 Identity.prototype[FL.traverse] = function(f, of) {
-  return R.map(Identity, f(this.value));
+  return Z.map(Identity, f(this.value));
 };
 
 Identity.prototype[FL.extend] = function(f) {
@@ -53,7 +52,7 @@ Identity.prototype[FL.extract] = function() {
 
 Identity.prototype.inspect =
 Identity.prototype.toString = function() {
-  return 'Identity(' + R.toString(this.value) + ')';
+  return 'Identity(' + Z.toString(this.value) + ')';
 };
 
 module.exports = Identity;

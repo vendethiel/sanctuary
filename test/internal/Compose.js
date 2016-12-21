@@ -1,50 +1,51 @@
 'use strict';
 
 var FL = require('fantasy-land');
-var R = require('ramda');
+var Z = require('sanctuary-type-classes');
 
 
-//  Compose :: (Apply f, Apply g) => { of :: b -> f b } -> { of :: c -> g c } -> f (g a) -> Compose f g a
-module.exports = function Compose(F) {
-  return function ComposeF(G) {
-    function ComposeFG(value) {
-      if (!(this instanceof ComposeFG)) return new ComposeFG(value);
-      this.value = value;
-    }
+function _Compose(F, G, x) {
+  if (!(this instanceof _Compose)) return new _Compose(F, G, x);
+  this.F = F;
+  this.G = G;
+  this.x = x;
+}
 
-    ComposeFG.of = function(x) {
-      return ComposeFG(F.of(G.of(x)));
-    };
-
-    ComposeFG.prototype['@@type'] = 'sanctuary/Compose';
-
-    ComposeFG.prototype[FL.equals] = function(other) {
-      return R.equals(this.value, other.value);
-    };
-
-    ComposeFG.prototype[FL.map] = function(f) {
-      return ComposeFG(R.map(R.map(f), this.value));
-    };
-
-    ComposeFG.prototype[FL.ap] = function(other) {
-      return ComposeFG(R.ap(R.map(R.ap, this.value), other.value));
-    };
-
-    //  name :: TypeRep a -> String
-    function name(typeRep) {
-      return typeRep.prototype != null &&
-             typeof typeRep.prototype['@@type'] === 'string' ?
-               typeRep.prototype['@@type'].replace(/^[^/]*[/]/, '') :
-               typeRep.name;
-    }
-
-    ComposeFG.prototype.inspect =
-    ComposeFG.prototype.toString = function() {
-      return 'Compose(' + name(F) + ')' +
-                    '(' + name(G) + ')' +
-                    '(' + R.toString(this.value) + ')';
-    };
-
-    return ComposeFG;
-  };
+_Compose[FL.of] = function(x) {
+  return _Compose(this.F, this.G, Z.of(this.F, Z.of(this.G, x)));
 };
+
+_Compose.prototype['@@type'] = 'sanctuary/Compose';
+
+_Compose.prototype[FL.equals] = function(other) {
+  return Z.equals(other.x, this.x);
+};
+
+_Compose.prototype[FL.map] = function(f) {
+  return _Compose(this.F, this.G, Z.map(function(y) { return Z.map(f, y); }, this.x));
+};
+
+_Compose.prototype[FL.ap] = function(other) {
+  return _Compose(this.F, this.G, Z.ap(Z.map(Z.ap, this.x), other.x));
+};
+
+_Compose.prototype.inspect =
+_Compose.prototype.toString = function() {
+  return 'Compose(' + Z.toString(this.F) + ')(' + Z.toString(this.G) + ')(' + Z.toString(this.x) + ')';
+};
+
+
+//  Compose :: (Apply f, Apply g) => TypeRep f -> TypeRep g -> f (g a) -> Compose f g a
+function Compose(F) {
+  return function(G) {
+    function Composed(x) {
+      return _Compose(F, G, x);
+    }
+    Composed[FL.of] = function(x) {
+      return _Compose(F, G, Z.of(F, Z.of(G, x)));
+    };
+    return Composed;
+  };
+}
+
+module.exports = Compose;
